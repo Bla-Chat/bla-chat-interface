@@ -6,6 +6,7 @@ package net.michaelfuerst.xjcp;
  * @version 1.0
  */
 public abstract class XJCP {
+    // Creating an xjcp client.
     /**
      * Create an implementation of the xjcp for the minified protocol.
      *
@@ -15,10 +16,38 @@ public abstract class XJCP {
      * @param connection Identify the connectivity in realtime.
      * @return The freshly created xjcp implementation.
      */
-    public XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Connection connection) {
+    public final XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Connection connection) {
         return null;
     }
 
+    // Configuring your xjcp client.
+    /**
+     * Set the XJCP to only use WLAN or LAN but not mobile internet.
+     * @param enabled True if only WLAN and LAN should be used.
+     */
+    public abstract void setWLANOnly(boolean enabled);
+
+    /**
+     * Setup the keep alive interval.
+     * When the user is successfully logged in and there was no communication with the server for the given time,
+     * send a keep alive message.
+     *
+     * A keep alive message is a message that only contains the id.
+     *
+     * If the xjcp client does not have a valid id, it does nothing.
+     *
+     * @param timeInMs The time until a keep alive message has to be send in ms.
+     */
+    public abstract void setKeepAliveInterval(int timeInMs);
+
+    /**
+     * Set the event handler.
+     * @param handler The event handler.
+     */
+    public abstract void setEventHandler(final Handler handler);
+
+
+    // Communicating with the server.
     /**
      * Setup the login data. The handler will be called if the logindata was proofed right or wrong.
      * @param user The user to login.
