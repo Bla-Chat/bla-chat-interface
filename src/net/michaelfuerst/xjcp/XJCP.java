@@ -12,9 +12,10 @@ public abstract class XJCP {
      * @param host The host to use.
      * @param useHttp Weather to use http. (Default should be true.)
      * @param minified Weather the protocol is minified or not.
+     * @param connection Identify the connectivity in realtime.
      * @return The freshly created xjcp implementation.
      */
-    public XJCP createXJCP(final String host, final boolean useHttp, final boolean minified) {
+    public XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Connection connection) {
         return null;
     }
 
