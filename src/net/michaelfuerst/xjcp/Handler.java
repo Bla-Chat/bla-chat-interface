@@ -1,4 +1,4 @@
-package net.penguinmenac3.xjcp;
+package net.michaelfuerst.xjcp;
 
 /**
  * A message handler interface.

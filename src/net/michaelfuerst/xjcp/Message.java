@@ -1,4 +1,4 @@
-package net.penguinmenac3.xjcp;
+package net.michaelfuerst.xjcp;
 
 /**
  * A Message that is conform to the android message.
@@ -27,5 +27,9 @@ public class Message {
      */
     public Object replyTo;
 
+    /**
+     * Obtain a message object.
+     * @return A message object.
+     */
     public static Message obtain() {return new Message();}
 }
