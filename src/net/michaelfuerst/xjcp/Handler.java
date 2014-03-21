@@ -41,7 +41,8 @@ public abstract class Handler {
     public final boolean sendMessage(final Message msg) {
         final Handler that = this;
         new Thread() {
-            public void main() {
+        	@Override
+            public void run() {
                 that.handleMessage(msg);
             }
         }.start();
