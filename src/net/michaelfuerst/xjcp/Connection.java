@@ -21,5 +21,11 @@ public interface Connection {
 	 * 
 	 * @return The host we are connected to.
 	 */
-	String getHost();
+	String getHost();	
+	/**
+	 * Gets general information about the {@link Device} we are running on.
+	 *  
+	 * @return The {@link Device} using this connection.
+	 */
+	Device getDevice();
 }
