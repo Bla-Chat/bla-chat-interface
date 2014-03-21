@@ -1,11 +1,27 @@
 package net.michaelfuerst.xjcp;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * A message handler interface.
  * @version 1.0
  * @author Michael Fürst
  */
 public abstract class Handler {
+	/** Threads available to the handler. */
+	private static final int THREADS = 4;
+	
+	/** The executor used. */
+	private final ExecutorService executor;
+	
+	/**
+	 * Creates a new handler.
+	 */
+	public Handler() {
+		this.executor = Executors.newFixedThreadPool(THREADS);
+	}
+	
     /**
      * Subclasses must implement this to receive messages.
      * @param msg The message to handle.
@@ -40,12 +56,12 @@ public abstract class Handler {
      */
     public final boolean sendMessage(final Message msg) {
         final Handler that = this;
-        new Thread() {
-        	@Override
-            public void run() {
-                that.handleMessage(msg);
-            }
-        }.start();
+        executor.submit(new Runnable() {			
+			@Override
+			public void run() {
+				that.handleMessage(msg);
+			}
+		});
         return true;
     }
 }
