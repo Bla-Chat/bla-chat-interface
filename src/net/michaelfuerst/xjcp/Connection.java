@@ -16,4 +16,10 @@ public interface Connection {
 	 * @return The resonse from the server.
 	 */
 	String send(String message);
+	/**
+	 * Gets a string representation of the host we are connected to.
+	 * 
+	 * @return The host we are connected to.
+	 */
+	String getHost();
 }
