@@ -16,7 +16,7 @@ public abstract class XJCP {
      * @param connection Identify the connectivity in realtime.
      * @return The freshly created xjcp implementation.
      */
-    public static XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Connection connection) {
+    public static XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Device connection) {
         return null;
     }
 
