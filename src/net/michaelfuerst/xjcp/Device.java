@@ -5,7 +5,7 @@ package net.michaelfuerst.xjcp;
  * @author Michael Fürst
  * @version 1.0
  */
-public interface ConnectionStatus {
+public interface Device {
     /**
      * Determine if the hardware has a lan connection.
      * @return True if LAN is connected.
