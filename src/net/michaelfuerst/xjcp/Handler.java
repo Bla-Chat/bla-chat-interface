@@ -5,8 +5,11 @@ import java.util.concurrent.Executors;
 
 /**
  * A message handler interface.
- * @version 1.0
+ * 
  * @author Michael Fürst
+ * @author TheDwoon
+ * @version 1.1
+ * @since 21.3.14
  */
 public abstract class Handler {
 	/** Threads available to the handler. */
