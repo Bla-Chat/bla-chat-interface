@@ -42,9 +42,6 @@ public class MessageParserImpl implements MessageParser {
 	
 	@Override
 	public List<Message> parseMessage(String msg) {
-		//TODO: Remove debug.
-		System.out.println("Parsing: " + msg);
-
 		return parseMessage(new JSONObject(msg));
 	}
 
