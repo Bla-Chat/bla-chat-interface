@@ -23,6 +23,7 @@ public final class SimpleParserTest {
 	private static final String RAW_HISTORY = "{messages:[{author:\"Author\", nick:\"Nick\", time:\"0-0-0\", text:\"Text\"},"
 			+ "{author:\"Author\", nick:\"Nick\", time:\"0-0-0\", text:\"Text\"}],"
 			+ " conversation:\"Conversation\"}";
+	private static final String RAW_STRING = "Hello World!";
 	
 	private MessageParser parser;
 	
@@ -106,5 +107,17 @@ public final class SimpleParserTest {
 		//Message parsing already tested. We just need to check if we parse the correct amount.
 		assertEquals(h.getMessages().size(), 2);
 		assertEquals(h.getConversation(), "Conversation");
+	}
+	
+	@Test
+	public void parseString() {
+		parser = new StringParser(-1);		
+		List<Message> m  = parser.parseMessage(RAW_STRING);
+		
+		assertNotNull(m);
+		assertEquals(m.size(), 1);
+		assertNotNull(m.get(0));
+		assertEquals(m.get(0).what, -1);
+		assertEquals(m.get(0).obj, "Hello World!");
 	}
 }
