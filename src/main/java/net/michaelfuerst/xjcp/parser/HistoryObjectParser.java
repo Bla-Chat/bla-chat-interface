@@ -7,7 +7,6 @@ import net.michaelfuerst.xjcp.Message;
 import net.michaelfuerst.xjcp.MessageParser;
 import net.michaelfuerst.xjcp.XJCP;
 import net.michaelfuerst.xjcp.helper.ChatMessage;
-import net.michaelfuerst.xjcp.helper.ContactObject;
 import net.michaelfuerst.xjcp.helper.History;
 
 import org.json.JSONArray;
@@ -25,10 +24,10 @@ public final class HistoryObjectParser implements MessageParser {
 	private static final String MESSAGES = "messages";	
 	private static final String CONVERSATION = "conversation";
 	
-	private ChatObjectParser parser;
+	private ChatMessageParser parser;
 	
 	public HistoryObjectParser() {
-		this.parser = new ChatObjectParser();
+		this.parser = new ChatMessageParser();
 	}
 	
 	@Override
@@ -46,11 +45,11 @@ public final class HistoryObjectParser implements MessageParser {
 			//Dirty.
 			cms.add((ChatMessage) parser.parseMessage((JSONObject)jArray.get(i)).get(0).obj);
 		}
-		
+				
 		History o = new History(cms, jo.getString(CONVERSATION));
 		
 		Message m = Message.obtain();
-		m.what = XJCP.RPL_CONTACTOBJECT;
+		m.what = XJCP.RPL_HISTORY;
 		m.obj = o;
 		
 		results.add(m);
