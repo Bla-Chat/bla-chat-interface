@@ -6,6 +6,12 @@ package net.michaelfuerst.xjcp;
  * @version 1.0
  */
 public abstract class XJCP {
+	public static final int RPL_CHATMESSAGE = 1;
+	public static final int RPL_CHATOBJECT = 2;
+	public static final int RPL_CONTACTOBJECT = 3;
+	public static final int RPL_EVENT = 4;
+	public static final int RPL_HISTORY = 5;
+	
     // Creating an xjcp client.
     /**
      * Create an implementation of the xjcp for the minified protocol.
