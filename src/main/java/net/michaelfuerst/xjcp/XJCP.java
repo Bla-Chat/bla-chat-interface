@@ -11,6 +11,16 @@ public abstract class XJCP {
 	public static final int RPL_CONTACTOBJECT = 3;
 	public static final int RPL_EVENT = 4;
 	public static final int RPL_HISTORY = 5;
+	public static final int RPL_ID = 6;
+	public static final int RPL_LOGINERROR = 7;
+	public static final int RPL_MESSAGE = 8;
+	public static final int RPL_NEWCONVERSATION = 9;
+	public static final int RPL_RENAMECONVERSATION = 10;
+	public static final int RPL_ADDFRIEND = 11;
+	public static final int RPL_SETPROFILEIMAGE = 12;
+	public static final int RPL_SETGROUPIMAGE = 13;
+	public static final int RPL_INJECTEVENT = 14;
+	public static final int RPL_DATA = 15;
 	
     // Creating an xjcp client.
     /**

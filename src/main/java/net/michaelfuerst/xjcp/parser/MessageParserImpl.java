@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.michaelfuerst.xjcp.Message;
 import net.michaelfuerst.xjcp.MessageParser;
+import net.michaelfuerst.xjcp.XJCP;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,6 +25,17 @@ public class MessageParserImpl implements MessageParser {
 		m.parser.put("events", new EventParser());
 		m.parser.put("onGetHistory", new HistoryParser());
 		m.parser.put("onGetContacts", new ContactObjectParser());
+		
+		m.parser.put("id", new StringParser(XJCP.RPL_ID));
+		m.parser.put("onLoginError", new StringParser(XJCP.RPL_LOGINERROR));
+		m.parser.put("onMessage", new StringParser(XJCP.RPL_MESSAGE));
+		m.parser.put("onNewConversation", new StringParser(XJCP.RPL_NEWCONVERSATION));
+		m.parser.put("onRenameConversation", new StringParser(XJCP.RPL_RENAMECONVERSATION));
+		m.parser.put("onAddFriend", new StringParser(XJCP.RPL_ADDFRIEND));
+		m.parser.put("onSetProfileImage", new StringParser(XJCP.RPL_SETPROFILEIMAGE));
+		m.parser.put("onSetGroupImage", new StringParser(XJCP.RPL_SETGROUPIMAGE));
+		m.parser.put("onInjectEvent", new StringParser(XJCP.RPL_INJECTEVENT));
+		m.parser.put("data", new StringParser(XJCP.RPL_DATA));
 		
 		return m;
 	}
