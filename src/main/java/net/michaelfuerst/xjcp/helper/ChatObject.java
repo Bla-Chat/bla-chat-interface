@@ -9,28 +9,28 @@ package net.michaelfuerst.xjcp.helper;
  *
  */
 public final class ChatObject {
-	private final String nick;
+	private final String conversation;
 	private final String name;
 	private final String time;
 	
 	/**
 	 * Creates a new ChatObject.
 	 * 
-	 * @param nick The nick.
+	 * @param conversation The conversation.
 	 * @param name The name.
 	 * @param time The time.
 	 */
-	public ChatObject(String nick, String name, String time) {
-		this.nick = nick;
+	public ChatObject(String conversation, String name, String time) {
+		this.conversation = conversation;
 		this.name = name;
 		this.time = time;
 	}
 
 	/**
-	 * @return The nick.
+	 * @return The conversation.
 	 */
-	public String getNick() {
-		return nick;
+	public String getConversation() {
+		return conversation;
 	}
 
 	/**
