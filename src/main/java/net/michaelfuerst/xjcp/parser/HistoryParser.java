@@ -36,7 +36,9 @@ public final class HistoryParser implements MessageParser {
 	}
 
 	@Override
-	public List<Message> parseMessage(JSONObject jo) {
+	public List<Message> parseMessage(Object o) {
+		JSONObject jo = (JSONObject) o;
+		
 		List<Message> results = new LinkedList<>();
 		
 		List<ChatMessage> cms = new LinkedList<>();
@@ -46,11 +48,11 @@ public final class HistoryParser implements MessageParser {
 			cms.add((ChatMessage) parser.parseMessage((JSONObject)jArray.get(i)).get(0).obj);
 		}
 				
-		History o = new History(cms, jo.getString(CONVERSATION));
+		History h = new History(cms, jo.getString(CONVERSATION));
 		
 		Message m = Message.obtain();
 		m.what = XJCP.RPL_HISTORY;
-		m.obj = o;
+		m.obj = h;
 		
 		results.add(m);
 		

@@ -33,14 +33,16 @@ public final class ContactObjectParser implements MessageParser {
 	}
 
 	@Override
-	public List<Message> parseMessage(JSONObject jo) {
+	public List<Message> parseMessage(Object o) {
+		JSONObject jo = (JSONObject) o;
+		
 		List<Message> results = new LinkedList<>();
 		
-		ContactObject o = new ContactObject(jo.getString(NICK), jo.getString(NAME), jo.getInt(STATUS));
+		ContactObject co = new ContactObject(jo.getString(NICK), jo.getString(NAME), jo.getInt(STATUS));
 		
 		Message m = Message.obtain();
 		m.what = XJCP.RPL_CONTACTOBJECT;
-		m.obj = o;
+		m.obj = co;
 		
 		results.add(m);
 		

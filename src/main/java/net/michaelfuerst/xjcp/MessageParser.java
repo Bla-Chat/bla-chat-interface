@@ -28,5 +28,5 @@ public interface MessageParser {
 	 * @param jo The {@link JSONObject}.
 	 * @return The representation as a {@link Message}.
 	 */
-	List<Message> parseMessage(JSONObject jo);
+	List<Message> parseMessage(Object o);
 }

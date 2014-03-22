@@ -34,7 +34,9 @@ public final class EventParser implements MessageParser {
 	}
 
 	@Override
-	public List<Message> parseMessage(JSONObject jo) {
+	public List<Message> parseMessage(Object o) {
+		JSONObject jo = (JSONObject) o;
+		
 		List<Message> results = new LinkedList<>();
 
 		Event e = new Event(jo.getString(TYPE), jo.getString(MSG), jo.getString(NICK), jo.getString(TEXT));

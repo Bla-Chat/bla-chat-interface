@@ -34,7 +34,9 @@ public final class ChatMessageParser implements MessageParser {
 	}
 
 	@Override
-	public List<Message> parseMessage(JSONObject jo) {
+	public List<Message> parseMessage(Object o) {
+		JSONObject jo = (JSONObject) o;
+		
 		List<Message> results = new LinkedList<>();
 		
 		ChatMessage cm = new ChatMessage(jo.getString(AUTHOR), jo.getString(NICK), jo.getString(TIME), jo.getString(TEXT));

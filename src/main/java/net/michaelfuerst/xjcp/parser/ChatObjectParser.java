@@ -33,14 +33,15 @@ public final class ChatObjectParser implements MessageParser {
 	}
 
 	@Override
-	public List<Message> parseMessage(JSONObject jo) {
+	public List<Message> parseMessage(Object o) {
+		JSONObject jo = (JSONObject) o;
 		List<Message> results = new LinkedList<>();
 		
-		ChatObject o = new ChatObject(jo.getString(CONVERSATION), jo.getString(NAME), jo.getString(TIME));
+		ChatObject co = new ChatObject(jo.getString(CONVERSATION), jo.getString(NAME), jo.getString(TIME));
 		
 		Message m = Message.obtain();
 		m.what = XJCP.RPL_CHATOBJECT;
-		m.obj = o;
+		m.obj = co;
 		
 		results.add(m);
 		
