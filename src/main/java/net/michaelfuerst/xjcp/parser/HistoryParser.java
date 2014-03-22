@@ -20,13 +20,13 @@ import org.json.JSONObject;
  * @since 22.03.2014
  *
  */
-public final class HistoryObjectParser implements MessageParser {
+public final class HistoryParser implements MessageParser {
 	private static final String MESSAGES = "messages";	
 	private static final String CONVERSATION = "conversation";
 	
 	private ChatMessageParser parser;
 	
-	public HistoryObjectParser() {
+	public HistoryParser() {
 		this.parser = new ChatMessageParser();
 	}
 	
