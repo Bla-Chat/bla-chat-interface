@@ -19,23 +19,24 @@ import net.michaelfuerst.xjcp.device.Device;
  *
  */
 public final class DefaultTransmitter implements Transmitter {
-	private static final int SLEEP = 1000;
-	
 	private final MessageParser parser;
 	private final Connection connection;
 	private final List<Entry> queue;
 	private final Worker worker;
+	private final int sleep;
 	
 	/**
 	 * Creates a new DefaultTransmitter.
 	 * 
-	 * @param connection
-	 * @param parser
+	 * @param connection The connection we should use.
+	 * @param parser The parser we should use.
+	 * @param sleep The amount of ms we should wait to send again.
 	 */
-	public DefaultTransmitter(final Connection connection, final MessageParser parser) {
+	public DefaultTransmitter(final Connection connection, final MessageParser parser, final int sleep) {
 		this.parser = parser;
 		this.connection = connection;
 		this.queue = Collections.synchronizedList(new LinkedList<Entry>());
+		this.sleep = sleep;
 		
 		this.worker = new Worker(connection.getDevice());
 	}
@@ -68,7 +69,7 @@ public final class DefaultTransmitter implements Transmitter {
 				//Wait until we have WLAN or LAN and something to send.
 				while (!device.hasInternet() || queue.isEmpty()) {
 					try {
-						Thread.sleep(SLEEP);
+						Thread.sleep(sleep);
 					} catch (InterruptedException e) {						
 						return;
 					}

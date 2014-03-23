@@ -18,24 +18,23 @@ import net.michaelfuerst.xjcp.device.Device;
  * @since 23.03.2014
  *
  */
-public final class LANTransmitter implements Transmitter {
-	private static final int SLEEP = 1000;
-	
+public final class LANTransmitter implements Transmitter {	
 	private final MessageParser parser;
 	private final Connection connection;
 	private final List<Entry> queue;
 	private final Worker worker;
+	private final int sleep;
 	
 	/**
 	 * 
 	 * @param connection
 	 * @param parser
 	 */
-	public LANTransmitter(final Connection connection, final MessageParser parser) {
+	public LANTransmitter(final Connection connection, final MessageParser parser, final int sleep) {
 		this.parser = parser;
 		this.connection = connection;
 		this.queue = Collections.synchronizedList(new LinkedList<Entry>());
-		
+		this.sleep = sleep;
 		this.worker = new Worker(connection.getDevice());
 	}
 	
@@ -67,7 +66,7 @@ public final class LANTransmitter implements Transmitter {
 				//Wait until we have WLAN or LAN and something to send.
 				while (!(device.hasWLAN() || device.hasLAN()) || queue.isEmpty()) {
 					try {
-						Thread.sleep(SLEEP);
+						Thread.sleep(sleep);
 					} catch (InterruptedException e) {						
 						return;
 					}

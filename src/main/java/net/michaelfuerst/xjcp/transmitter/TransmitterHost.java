@@ -28,8 +28,8 @@ public final class TransmitterHost implements Transmitter {
 	public TransmitterHost(final Connection connection, final MessageParser parser) {
 		this.transmitter = new Transmitter[2];
 		
-		this.transmitter[0] = new DefaultTransmitter(connection, parser);
-		this.transmitter[1] = new LANTransmitter(connection, parser);
+		this.transmitter[0] = new DefaultTransmitter(connection, parser, 500);
+		this.transmitter[1] = new LANTransmitter(connection, parser, 5000);
 	}
 
 	@Override
