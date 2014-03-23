@@ -4,7 +4,7 @@ import net.michaelfuerst.xjcp.device.Device;
 
 /**
  * This interface defines a connection to a server.
- * A connection MUST BE threadsafe.
+ * A connection MUST BE thread safe.
  * 
  * @author TheDwoon
  * @version 1.1
