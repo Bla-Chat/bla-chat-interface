@@ -55,7 +55,7 @@ public class TransmitterTest {
 		
 		transmitter.submit("Hello World!", handler);
 		
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		
 		assertFalse(handler.isCalled());
 		device.setMobileInternet(true);
@@ -80,7 +80,7 @@ public class TransmitterTest {
 		transmitter.submit("Hello World!", handler);
 		device.setMobileInternet(true);
 		
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		
 		assertFalse(handler.isCalled());
 		assertNull(handler.getMessage());
@@ -95,7 +95,7 @@ public class TransmitterTest {
 		
 		transmitter.submit("Hello World!", handler);
 		
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		
 		assertFalse(handler.isCalled());
 		device.setWlan(true);
@@ -119,7 +119,7 @@ public class TransmitterTest {
 		
 		transmitter.submit("Hello World!", handler);
 		
-		Thread.sleep(1000);
+		Thread.sleep(100);
 		
 		assertFalse(handler.isCalled());
 		device.setLAN(true);
