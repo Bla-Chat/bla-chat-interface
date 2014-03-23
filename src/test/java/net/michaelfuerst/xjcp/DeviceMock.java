@@ -1,5 +1,7 @@
 package net.michaelfuerst.xjcp;
 
+import net.michaelfuerst.xjcp.device.Device;
+
 /**
  * This class is only for testing purposes.
  * 
@@ -38,7 +40,7 @@ public final class DeviceMock implements Device {
 	}
 
 	/**
-	 * Changes wheather we have WLAN or not.
+	 * Changes weather we have WLAN or not.
 	 * 
 	 * @param hasWlan The WLAN state.
 	 */
@@ -58,5 +60,10 @@ public final class DeviceMock implements Device {
 	 */
 	public void setMobileInternet(boolean hasMobileInternet) {
 		this.hasMobileInternet = hasMobileInternet;
+	}
+	
+	@Override
+	public boolean hasInternet() {
+		return hasWLAN() || hasLAN() || hasMobileInternet();
 	}
 }

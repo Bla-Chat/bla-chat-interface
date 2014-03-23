@@ -2,6 +2,9 @@ package net.michaelfuerst.xjcp;
 
 import java.util.HashMap;
 
+import net.michaelfuerst.xjcp.connection.Connection;
+import net.michaelfuerst.xjcp.device.Device;
+
 /**
  * This class is for testing purpose only.
  * 
