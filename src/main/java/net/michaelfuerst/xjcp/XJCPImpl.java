@@ -1,5 +1,8 @@
 package net.michaelfuerst.xjcp;
 
+import net.michaelfuerst.xjcp.connection.Connection;
+import net.michaelfuerst.xjcp.transmitter.Transmitter;
+
 
 /**
  * This class implements XJCP.
@@ -10,14 +13,20 @@ package net.michaelfuerst.xjcp;
  */
 public class XJCPImpl extends XJCP {
 	private final boolean minified;
-	private final Device connectionStatus;
 	private final Connection connection;
+	private final Transmitter transmitter;
 	
-	public XJCPImpl(final boolean minified, 
-			final Device connectionStatus, final Connection connection) {
-		this.minified = minified;
-		this.connectionStatus = connectionStatus;		
+	/** The user. */
+	private String user;
+	/** The users password. */
+	private String passwd;
+	/** Our client id, if we have one.*/
+	private String clientId;
+	
+	public XJCPImpl(final boolean minified, final Connection connection, final Transmitter transmitter) {
+		this.minified = minified;	
 		this.connection = connection;
+		this.transmitter = transmitter;
 	}
 	
 	@Override

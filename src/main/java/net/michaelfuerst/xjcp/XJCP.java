@@ -1,5 +1,7 @@
 package net.michaelfuerst.xjcp;
 
+import net.michaelfuerst.xjcp.device.Device;
+
 /**
  * An interface to the xjcp protocol.
  * @author Michael Fürst
