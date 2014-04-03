@@ -6,7 +6,7 @@ import net.michaelfuerst.xjcp.Handler;
 import net.michaelfuerst.xjcp.Message;
 
 /**
- * This class is utility class for the transmitter to store their data in.
+ * This class is a utility class for the transmitter to store their data in.
  * 
  * @author TheDwoon
  * @version 1.0
@@ -36,7 +36,7 @@ class Entry {
 	public final void invokeHandler(List<Message> messages) {
 		if (handler != null) {			
 			for (Message m : messages) {
-				handler.sendMessage(m);
+				invokeHandler(m);
 			}
 		}
 	}
