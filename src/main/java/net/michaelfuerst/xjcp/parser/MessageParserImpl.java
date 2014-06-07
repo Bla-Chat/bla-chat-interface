@@ -3,19 +3,25 @@ package net.michaelfuerst.xjcp.parser;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import net.michaelfuerst.xjcp.Message;
 import net.michaelfuerst.xjcp.MessageParser;
 import net.michaelfuerst.xjcp.XJCP;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class MessageParserImpl implements MessageParser {
 	private HashMap<String, MessageParser> parser;
 	
+	private final JsonParser jparser;
+	
 	public MessageParserImpl() {
 		this.parser = new HashMap<>();
+		this.jparser = new JsonParser();
 	}
 	
 	public static MessageParser obtain() {
@@ -42,34 +48,33 @@ public class MessageParserImpl implements MessageParser {
 	
 	@Override
 	public List<Message> parseMessage(String msg) {
-		return parseMessage(new JSONObject(msg));
+		return parseMessage(jparser.parse(msg));
 	}
 
 	@Override
 	public List<Message> parseMessage(Object o) {
-		JSONObject jo = (JSONObject) o;
+		JsonObject jo = (JsonObject) o;
 		
-		List<Message> results = new LinkedList<>();
+		List<Message> results = new LinkedList<>();		
 		
-		String[] keys = JSONObject.getNames(jo);
-		for (String key : keys) {
-			//Check if we need to process the key.
-			if (jo.isNull(key)) {
+		for (Entry<String, JsonElement> entry : jo.entrySet()) {
+			//Check if we need to process the entry.
+			if (entry.getValue() == null) {
 				continue;
 			}
 			
-			Object obj = jo.get(key);
-			MessageParser p = parser.get(key);
+			JsonElement obj = entry.getValue();
+			MessageParser p = parser.get(entry.getKey());
 			if (p == null) {
 				//TODO: Remove debug.
-				System.out.println("ERROR: Missing parser for \"" + key + "\"");
+				System.out.println("ERROR: Missing parser for \"" + entry.getKey() + "\"");
 				continue;
 			}
 			
-			if (obj instanceof JSONArray) {
+			if (obj.isJsonArray()) {
 				//We have found an array of entries.
-				JSONArray ja = (JSONArray) obj;
-				for (int i = 0; i < ja.length(); i++) {
+				JsonArray ja = obj.getAsJsonArray();
+				for (int i = 0; i < ja.size(); i++) {
 					results.addAll(p.parseMessage(ja.get(i)));
 				}
 			} else {

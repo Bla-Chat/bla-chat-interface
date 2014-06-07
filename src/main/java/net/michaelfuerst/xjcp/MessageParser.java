@@ -2,11 +2,9 @@ package net.michaelfuerst.xjcp;
 
 import java.util.List;
 
-import org.json.JSONObject;
-
 
 /**
- * A parser used to convert a serverreply to a {@link Message}.
+ * A parser used to convert a server reply to a {@link Message}.
  * 
  * @author TheDwoon
  * @version 1.0
@@ -23,7 +21,7 @@ public interface MessageParser {
 	List<Message> parseMessage(String msg);
 	
 	/**
-	 * Converrts the given json to a {@link Message}.
+	 * Converts the given Json to a {@link Message}.
 	 * 
 	 * @param jo The {@link JSONObject}.
 	 * @return The representation as a {@link Message}.

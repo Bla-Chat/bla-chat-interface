@@ -1,7 +1,13 @@
 package net.michaelfuerst.xjcp;
 
+import java.io.StringWriter;
+
 import net.michaelfuerst.xjcp.connection.Connection;
-import net.michaelfuerst.xjcp.transmitter.Transmitter;
+import net.michaelfuerst.xjcp.transmitter.TransmitterHost;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonWriter;
 
 
 /**
@@ -12,9 +18,13 @@ import net.michaelfuerst.xjcp.transmitter.Transmitter;
  *
  */
 public class XJCPImpl extends XJCP {
+	private static final String ID = "id";
+	private static final String USER = "user";
+	private static final String PASSWORD = "pw";
+	
+	private final Gson gson;
 	private final boolean minified;
-	private final Connection connection;
-	private final Transmitter transmitter;
+	private final TransmitterHost transmitter;
 	
 	/** The user. */
 	private String user;
@@ -23,15 +33,16 @@ public class XJCPImpl extends XJCP {
 	/** Our client id, if we have one.*/
 	private String clientId;
 	
-	public XJCPImpl(final boolean minified, final Connection connection, final Transmitter transmitter) {
+	
+	public XJCPImpl(final boolean minified, final Connection connection, final MessageParser parser) {
+		this.gson = new Gson();
 		this.minified = minified;	
-		this.connection = connection;
-		this.transmitter = transmitter;
+		this.transmitter = new TransmitterHost(connection, parser);
 	}
 	
 	@Override
 	public void setWLANOnly(boolean enabled) {
-		
+		transmitter.setWLANOnly(enabled);
 	}
 
 	@Override
@@ -48,8 +59,18 @@ public class XJCPImpl extends XJCP {
 
 	@Override
 	public void setLoginData(String user, String password, Handler handler) {
-		// TODO Auto-generated method stub
+		this.user = user;
+		this.passwd = password;
+		this.clientId = null;
 		
+		final JsonObject obj = new JsonObject();
+		obj.addProperty(USER, user);
+		obj.addProperty(PASSWORD, password);
+		
+		final String msg = gson.toJson(obj);
+		
+		//FIX ME: We need to grab our clientID.
+		transmitter.submit(msg, handler);
 	}
 
 	@Override
@@ -127,7 +148,6 @@ public class XJCPImpl extends XJCP {
 	public void injectEvent(String conversation, String type, String message,
 			Handler handler) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
