@@ -21,6 +21,9 @@ public final class TransmitterHost implements Transmitter {
 	
 	/**
 	 * Creates a new TransmitterHost.
+	 * The host will hold a {@link DefaultTransmitter} and a {@link LANTransmitter}.
+	 * The {@link DefaultTransmitter} will be used to transmit small packets.
+	 * The {@link LANTransmitter} will be used to transmit large packets.
 	 * 
 	 * @param connection The connection used to transmit.
 	 * @param parser The parser used to parse the responses.
