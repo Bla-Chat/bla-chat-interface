@@ -83,6 +83,10 @@ public class XJCPImpl extends XJCP {
 	/** Our client id, if we have one.*/
 	private String clientId;
 	
+	private Thread t;
+	private volatile long keepAliveInterval;
+	
+	private Handler keepAliveHandler;
 	
 	public XJCPImpl(final boolean minified, final Connection connection, final MessageParser parser) {
 		this.gson = new Gson();
@@ -94,6 +98,29 @@ public class XJCPImpl extends XJCP {
 		} else {
 			this.mode = MODE_NORMAL;
 		}
+		
+		t = new Thread(new Runnable() {			
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(keepAliveInterval);
+					} catch (InterruptedException e) {
+						continue;
+					}
+					
+					if (clientId != null) {
+						JsonObject json = new JsonObject();
+						json.addProperty(PROTOCOL[ID][mode], clientId);
+						transmitter.submit(gson.toJson(json), keepAliveHandler);
+					}
+				}
+			}
+		});
+		
+		t.start();
+		
+		setKeepAliveInterval(2000);
 	}
 	
 	@Override
@@ -103,14 +130,12 @@ public class XJCPImpl extends XJCP {
 
 	@Override
 	public void setKeepAliveInterval(int timeInMs) {
-		// TODO Auto-generated method stub
-		
+		keepAliveInterval = timeInMs;
 	}
 
 	@Override
 	public void setEventHandler(Handler handler) {
-		// TODO Auto-generated method stub
-		
+		keepAliveHandler = handler;
 	}
 
 	@Override

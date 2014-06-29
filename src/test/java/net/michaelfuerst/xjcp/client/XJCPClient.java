@@ -42,9 +42,9 @@ public final class XJCPClient implements Runnable {
 			e.printStackTrace();
 		}
 		
-		Thread.sleep(2000);
-		
-		System.exit(0);
+//		Thread.sleep(5000);
+//		
+//		System.exit(0);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public final class XJCPClient implements Runnable {
 			}
 		};
 		
-		System.out.println("Perfoming log in...");
+		xjcp.setEventHandler(handler);
 		xjcp.setLoginData(user, password, handler);
 		
 		try {
@@ -64,7 +64,8 @@ public final class XJCPClient implements Runnable {
 		} catch (InterruptedException e) {		
 			e.printStackTrace();
 		}
+				
+		xjcp.setStatus(1, handler);
 		
-		xjcp.requestChats(handler);
 	}
 }
