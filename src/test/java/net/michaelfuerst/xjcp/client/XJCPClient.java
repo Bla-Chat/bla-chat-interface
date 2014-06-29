@@ -19,8 +19,9 @@ import net.michaelfuerst.xjcp.parser.MessageParserImpl;
  */
 public final class XJCPClient implements Runnable {
 	private static final String HOST = "https://www.ssl-id.de/bla.f-online.net/api/xjcp.php";
-	private static final String USER = "USER";
-	private static final String PASSWORD = "PW";
+	
+	private String user = null;
+	private String password = null;
 	
 	private final XJCP xjcp;
 	
@@ -28,21 +29,42 @@ public final class XJCPClient implements Runnable {
 		xjcp = new XJCPImpl(false, connection, MessageParserImpl.obtain());
 	}
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) throws Exception {		
 		Connection connection = new HttpConnection(HOST, new DesktopDevice(true, true));
 		XJCPClient client = new XJCPClient(connection);
 		
-		client.run();
+		client.user = args[0];
+		client.password = args[1];
+		
+		try {
+			client.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Thread.sleep(2000);
+		
+		System.exit(0);
 	}
 
 	@Override
-	public void run() {
-		System.out.println("Perfoming log in...");
-		xjcp.setLoginData("USER", "PASSWORD", new Handler() {			
+	public void run() {		
+		Handler handler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
 				System.out.println(msg);
 			}
-		});
+		};
+		
+		System.out.println("Perfoming log in...");
+		xjcp.setLoginData(user, password, handler);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {		
+			e.printStackTrace();
+		}
+		
+		xjcp.requestChats(handler);
 	}
 }

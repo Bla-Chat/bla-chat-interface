@@ -103,8 +103,9 @@ public abstract class QueuedTransmitter implements Transmitter {
 					}
 				}
 								
-				LOG.trace("Sending message: " + entry.getMessage());
+				LOG.trace(">> " + entry.getMessage());
 				String response = connection.send(entry.getMessage());
+				LOG.trace("<< " + response);
 				List<Message> messages = parser.parseMessage(response);
 				entry.invokeHandler(messages);
 			}

@@ -9,12 +9,18 @@ import net.michaelfuerst.xjcp.Message;
 import net.michaelfuerst.xjcp.MessageParser;
 import net.michaelfuerst.xjcp.XJCP;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class MessageParserImpl implements MessageParser {
+	private static final Logger LOG = LogManager.getLogger();
+	
 	private HashMap<String, MessageParser> parser;
 	
 	private final JsonParser jparser;
@@ -48,7 +54,17 @@ public class MessageParserImpl implements MessageParser {
 	
 	@Override
 	public List<Message> parseMessage(String msg) {
-		return parseMessage(jparser.parse(msg));
+		if (msg == null || msg.isEmpty()) {
+			return new LinkedList<>();
+		}
+		
+		try {
+			return parseMessage(jparser.parse(msg));
+		} catch (JsonSyntaxException e) {
+			LOG.error("Malformed Json: " + msg);
+			
+			return new LinkedList<>();
+		}
 	}
 
 	@Override
@@ -66,8 +82,7 @@ public class MessageParserImpl implements MessageParser {
 			JsonElement obj = entry.getValue();
 			MessageParser p = parser.get(entry.getKey());
 			if (p == null) {
-				//TODO: Remove debug.
-				System.out.println("ERROR: Missing parser for \"" + entry.getKey() + "\"");
+				LOG.warn("Missing parser for \"" + entry.getKey() + "\"");
 				continue;
 			}
 			
@@ -77,7 +92,7 @@ public class MessageParserImpl implements MessageParser {
 				for (int i = 0; i < ja.size(); i++) {
 					results.addAll(p.parseMessage(ja.get(i)));
 				}
-			} else {
+			} else {				
 				//We only found one entry.
 				results.addAll(p.parseMessage(obj));
 			}			

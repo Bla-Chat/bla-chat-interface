@@ -3,6 +3,7 @@ package net.michaelfuerst.xjcp.parser;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import net.michaelfuerst.xjcp.Message;
@@ -45,6 +46,8 @@ public class StringParser implements MessageParser {
 		if (o instanceof JsonPrimitive) {
 			JsonPrimitive p = (JsonPrimitive) o;
 			return parseMessage(p.getAsString());
+		} else if (o instanceof JsonNull) {
+			return null;
 		} else {
 			return parseMessage((String) o);
 		}

@@ -23,7 +23,7 @@ public final class HttpConnection implements Connection {
 	
 	@Override
 	public String send(String message) {
-		HttpParameter parameter = new HttpParameter("m", message);
+		HttpParameter parameter = new HttpParameter("msg", message);
 		
 		return HTTPService.sendPostRequest(host, parameter);
 	}
