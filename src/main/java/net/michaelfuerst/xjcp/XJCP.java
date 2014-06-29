@@ -97,9 +97,10 @@ public abstract class XJCP {
     /**
      * Request the history of a given conversation.
      * @param conversation The conversation.
+     * @param count The max amount of messages to return.
      * @param handler The handler to call when the history is ready.
      */
-    public abstract void requestHistory(final String conversation, final Handler handler);
+    public abstract void requestHistory(final String conversation, int count, final Handler handler);
 
     /**
      * Remove all events from a given conversation. Assuming the user has read all messages.

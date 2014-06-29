@@ -3,6 +3,9 @@ package net.michaelfuerst.xjcp.transmitter;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.michaelfuerst.xjcp.Handler;
 import net.michaelfuerst.xjcp.Message;
 import net.michaelfuerst.xjcp.MessageParser;
@@ -17,6 +20,8 @@ import net.michaelfuerst.xjcp.connection.Connection;
  *
  */
 public abstract class QueuedTransmitter implements Transmitter {	
+	private static final Logger LOG = LogManager.getLogger();
+	
 	private final Connection connection;
 	private final LinkedBlockingQueue<Entry> queue;
 	private final MessageParser parser;
@@ -38,17 +43,23 @@ public abstract class QueuedTransmitter implements Transmitter {
 	
 	@Override
 	public final void submit(String message, Handler handler) {
+		LOG.trace("Queued message: " + message);
+		
 		queue.add(new Entry(message, handler));
 	}
 
 	@Override
 	public final void start() {
 		worker.start();
+		
+		LOG.trace("Transmitter started");
 	}
 
 	@Override
 	public final void stop() {
 		worker.interrupt();
+		
+		LOG.trace("Transmitter interrupted");
 	}
 
 	/**
@@ -92,6 +103,7 @@ public abstract class QueuedTransmitter implements Transmitter {
 					}
 				}
 								
+				LOG.trace("Sending message: " + entry.getMessage());
 				String response = connection.send(entry.getMessage());
 				List<Message> messages = parser.parseMessage(response);
 				entry.invokeHandler(messages);
