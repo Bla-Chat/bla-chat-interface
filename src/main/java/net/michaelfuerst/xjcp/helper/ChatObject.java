@@ -46,4 +46,10 @@ public final class ChatObject {
 	public String getTime() {
 		return time;
 	}
+
+	@Override
+	public String toString() {
+		return "ChatObject [conversation=" + conversation + ", name=" + name
+				+ ", time=" + time + "]";
+	}
 }

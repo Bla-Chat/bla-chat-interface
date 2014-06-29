@@ -57,4 +57,10 @@ public class Event {
 	public String getText() {
 		return text;
 	}
+
+	@Override
+	public String toString() {
+		return "Event [type=" + type + ", msg=" + msg + ", nick=" + nick
+				+ ", text=" + text + "]";
+	}
 }

@@ -40,4 +40,10 @@ public final class History {
 	public String getConversation() {
 		return conversation;
 	}
+
+	@Override
+	public String toString() {
+		return "History [messages=" + messages + ", conversation="
+				+ conversation + "]";
+	}
 }

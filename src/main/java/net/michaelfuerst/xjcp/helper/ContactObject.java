@@ -40,6 +40,10 @@ public final class ContactObject {
 	public int getStatus() {
 		return status;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "ContactObject [nick=" + nick + ", name=" + name + ", status="
+				+ status + "]";
+	}
 }
