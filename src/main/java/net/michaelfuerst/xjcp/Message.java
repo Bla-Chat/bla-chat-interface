@@ -32,4 +32,10 @@ public class Message {
      * @return A message object.
      */
     public static Message obtain() {return new Message();}
+
+	@Override
+	public String toString() {
+		return "Message [what=" + what + ", obj=" + obj + ", arg1=" + arg1
+				+ ", arg2=" + arg2 + ", replyTo=" + replyTo + "]";
+	}
 }
