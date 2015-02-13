@@ -1,6 +1,7 @@
 package net.michaelfuerst.xjcp;
 
-import net.michaelfuerst.xjcp.device.Device;
+import net.michaelfuerst.xjcp.connection.Connection;
+import net.michaelfuerst.xjcp.parser.MessageParserImpl;
 
 /**
  * An interface to the xjcp protocol.
@@ -34,8 +35,8 @@ public abstract class XJCP {
      * @param connection Identify the connectivity in realtime.
      * @return The freshly created xjcp implementation.
      */
-    public static XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Device connection) {
-        return null;
+    public static XJCP createXJCP(final String host, final boolean useHttp, final boolean minified, final Connection connection) {
+        return new XJCPImpl(minified, connection, MessageParserImpl.obtain());
     }
 
     // Configuring your xjcp client.

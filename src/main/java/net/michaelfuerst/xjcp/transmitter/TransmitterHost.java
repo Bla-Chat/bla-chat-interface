@@ -13,7 +13,7 @@ import net.michaelfuerst.xjcp.connection.Connection;
  *
  */
 public final class TransmitterHost implements Transmitter {
-	private static final int MOBILEPACKETLIMIT = 1024;
+	private static final int MOBILEPACKETLIMIT = 4 * 1024;
 	private static final int DEFAULT_TRANSMITTER = 0;
 	private static final int LAN_TRANSMITTER = 1;
 	

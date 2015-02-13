@@ -86,7 +86,7 @@ public class XJCPImpl extends XJCP {
 	private Thread t;
 	private volatile long keepAliveInterval;
 	
-	private Handler keepAliveHandler;
+	private Handler eventHandler;
 	
 	public XJCPImpl(final boolean minified, final Connection connection, final MessageParser parser) {
 		this.gson = new Gson();
@@ -112,7 +112,7 @@ public class XJCPImpl extends XJCP {
 					if (clientId != null) {
 						JsonObject json = new JsonObject();
 						json.addProperty(PROTOCOL[ID][mode], clientId);
-						transmitter.submit(gson.toJson(json), keepAliveHandler);
+						transmitter.submit(gson.toJson(json), eventHandler);
 					}
 				}
 			}
@@ -135,7 +135,7 @@ public class XJCPImpl extends XJCP {
 
 	@Override
 	public void setEventHandler(Handler handler) {
-		keepAliveHandler = handler;
+		eventHandler = handler;
 	}
 
 	@Override
@@ -180,7 +180,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[MESSAGE][mode], msg);
 		
-		transmitter.submit(gson.toJson(json), handler);
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));
 	}
 
 	@Override
@@ -193,7 +193,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[CHATS][mode], new JsonObject());
 		
-		transmitter.submit(gson.toJson(json), handler);
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));
 	}
 
 	@Override
@@ -206,7 +206,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[CONTACTS][mode], new JsonObject());
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -223,7 +223,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[HISTORY][mode], msg);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -239,7 +239,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[REMOVE_EVENT][mode], msg);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[NEW_CONVERSATION][mode], msg);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.add(PROTOCOL[RENAME_CONVERSATION][mode], msg);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -298,7 +298,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.addProperty(PROTOCOL[SET_NAME][mode], name);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -311,7 +311,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.addProperty(PROTOCOL[ADD_FRIEND][mode], user);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -324,7 +324,7 @@ public class XJCPImpl extends XJCP {
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		json.addProperty(PROTOCOL[SET_STATUS][mode], status);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
@@ -360,7 +360,7 @@ public class XJCPImpl extends XJCP {
 		final JsonObject json = new JsonObject();
 		json.addProperty(PROTOCOL[ID][mode], clientId);
 		
-		transmitter.submit(gson.toJson(json), handler);	
+		transmitter.submit(gson.toJson(json), new EventProxyHandler(handler, eventHandler));	
 	}
 
 	@Override
