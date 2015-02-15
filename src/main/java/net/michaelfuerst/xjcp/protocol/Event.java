@@ -21,4 +21,10 @@ public final class Event {
 	public String getNick() {
 		return nick;
 	}
+
+	@Override
+	public String toString() {
+		return "Event [type=" + type + ", msg=" + msg + ", nick=" + nick
+				+ ", text=" + text + "]";
+	}
 }

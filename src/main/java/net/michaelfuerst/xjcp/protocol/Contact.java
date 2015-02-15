@@ -22,4 +22,10 @@ public final class Contact {
 	public int getStatus() {
 		return status;
 	}
+
+	@Override
+	public String toString() {
+		return "Contact [nick=" + nick + ", name=" + name + ", status="
+				+ status + "]";
+	}
 }

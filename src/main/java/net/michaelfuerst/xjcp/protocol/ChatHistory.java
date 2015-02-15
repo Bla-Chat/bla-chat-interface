@@ -19,4 +19,10 @@ public final class ChatHistory {
 	public String getConversation() {
 		return conversation;
 	}
+
+	@Override
+	public String toString() {
+		return "ChatHistory [messages=" + messages + ", conversation="
+				+ conversation + "]";
+	}
 }

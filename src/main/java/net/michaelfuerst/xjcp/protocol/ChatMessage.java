@@ -28,4 +28,10 @@ public final class ChatMessage {
 	public String getText() {
 		return text;
 	}
+
+	@Override
+	public String toString() {
+		return "ChatMessage [author=" + author + ", nick=" + nick + ", time="
+				+ time + ", text=" + text + "]";
+	}
 }

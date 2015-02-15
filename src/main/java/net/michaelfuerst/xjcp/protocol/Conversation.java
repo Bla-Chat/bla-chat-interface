@@ -22,4 +22,10 @@ public final class Conversation {
 	public String getTime() {
 		return time;
 	}
+
+	@Override
+	public String toString() {
+		return "Conversation [conversation=" + conversation + ", name=" + name
+				+ ", time=" + time + "]";
+	}
 }

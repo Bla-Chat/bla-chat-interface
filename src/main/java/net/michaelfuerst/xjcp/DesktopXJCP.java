@@ -116,6 +116,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<List<Conversation>> future = new GenericFuture<>();
 				
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("getChats", new JsonObject());
 		
 		threadPool.submit(() -> {
@@ -144,6 +145,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<List<Contact>> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("getContacts", new JsonObject());
 		
 		threadPool.submit(() -> {
@@ -176,6 +178,7 @@ public class DesktopXJCP implements XJCP {
 		request.addProperty("count", count);
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("getHistory", request);
 		
 		threadPool.submit(() -> {
@@ -202,6 +205,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<Void> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.addProperty("removeEvent", conversation);
 		
 		threadPool.submit(() -> {
@@ -224,6 +228,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<String> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("newConversation", new JsonObject());
 		
 		threadPool.submit(() -> {
@@ -250,6 +255,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<String> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("renameConversation", new JsonObject());
 		
 		threadPool.submit(() -> {
@@ -276,6 +282,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<Void> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.addProperty("setName", name);
 		
 		threadPool.submit(() -> {
@@ -298,6 +305,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<String> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.addProperty("addFriend", user);
 		
 		threadPool.submit(() -> {
@@ -324,6 +332,7 @@ public class DesktopXJCP implements XJCP {
 		final GenericFuture<Void> future = new GenericFuture<>();
 		
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.addProperty("setStatus", status);
 		
 		threadPool.submit(() -> {
@@ -363,6 +372,7 @@ public class DesktopXJCP implements XJCP {
 		request.addProperty("message", message);
 
 		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
 		json.add("injectEvent", request);
 		
 		threadPool.submit(() -> {
