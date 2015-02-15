@@ -146,4 +146,9 @@ public interface XJCP {
     default Future<Void> sendData(final Object data, final String conversation) {
     	throw new UnsupportedOperationException();
     }
+    
+    /**
+     * Terminates all activities.
+     */
+    void shutdown();
 }

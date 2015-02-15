@@ -3,9 +3,12 @@ package net.michaelfuerst.xjcp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.michaelfuerst.xjcp.protocol.ChatHistory;
 import net.michaelfuerst.xjcp.protocol.Contact;
@@ -14,20 +17,28 @@ import net.michaelfuerst.xjcp.protocol.Event;
 import net.michaelfuerst.xjcp.web.HTTPService;
 import net.michaelfuerst.xjcp.web.HttpParameter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class DesktopXJCP implements XJCP {
+	private static final Logger LOG = LogManager.getLogger();
+	
 	private final Gson gson = new Gson();
 	private final JsonParser parser = new JsonParser();
 	private final ExecutorService threadPool;
 	private final String host;
 	
-	private long keepAliveInterval;
+	private volatile long keepAliveInterval = 1000;
+	private volatile long lastRequestTime = 0;
 	private EventHandler handler;
 	private String clientId = null;
+	
+	private Thread keepAliveThread;
 	
 	public DesktopXJCP(final String host) {
 		if (host == null || host.isEmpty()) {
@@ -36,6 +47,29 @@ public class DesktopXJCP implements XJCP {
 		
 		this.host = host;
 		this.threadPool = Executors.newFixedThreadPool(1);
+		
+		keepAliveThread = new Thread(() -> {
+			while (!Thread.interrupted()) {				
+				try {
+					long timeElapsed = System.currentTimeMillis() - lastRequestTime;
+					if (timeElapsed > keepAliveInterval && clientId != null) {
+						ping().get(30, TimeUnit.SECONDS);
+					}
+					
+					long sleepTime = keepAliveInterval - (System.currentTimeMillis() - lastRequestTime);
+					if (sleepTime > 0) {
+						Thread.sleep(sleepTime);
+					}
+				} catch (InterruptedException e1) {
+					break;
+				} catch (TimeoutException e2) {
+					LOG.error("PING timed out");
+				} catch (ExecutionException e3) {
+					LOG.error("Exception occured during ping: " + e3.getMessage());
+				}
+			}
+		});
+		keepAliveThread.start();
 	}
 	
 	@Override
@@ -60,8 +94,11 @@ public class DesktopXJCP implements XJCP {
 		json.addProperty("user", user);
 		json.addProperty("pw", password);
 		
+		LOG.debug("Performing login for " + user);
+		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -69,8 +106,10 @@ public class DesktopXJCP implements XJCP {
 				if (response.get("id") != null) {
 					this.clientId = response.get("id").getAsString();
 					future.setValue(true);
+					LOG.debug("Login successfull for " + user);
 				} else {
 					future.setValue(false);
+					LOG.debug("Login failed for " + user);
 				}
 			} catch (Exception e) {
 				future.setException(e);
@@ -94,6 +133,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -119,8 +159,10 @@ public class DesktopXJCP implements XJCP {
 		json.addProperty("id", clientId);
 		json.add("getChats", new JsonObject());
 		
+		LOG.trace("Requested conversations");
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -150,6 +192,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -183,6 +226,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -210,6 +254,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -233,6 +278,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -260,6 +306,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -287,6 +334,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -310,6 +358,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -337,6 +386,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -377,6 +427,7 @@ public class DesktopXJCP implements XJCP {
 		
 		threadPool.submit(() -> {
 			try {
+				lastRequestTime = System.currentTimeMillis();
 				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
 				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
 				extractAndPerformEvents(response);
@@ -394,6 +445,36 @@ public class DesktopXJCP implements XJCP {
 		return future;
 	}
 
+	@Override
+	public void shutdown() {
+		keepAliveThread.interrupt();
+		threadPool.shutdown();
+	}
+
+	private Future<Void> ping() {
+		final GenericFuture<Void> future = new GenericFuture<>();
+		
+		final JsonObject json = new JsonObject();
+		json.addProperty("id", clientId);
+
+		threadPool.submit(() -> {
+			try {
+				lastRequestTime = System.currentTimeMillis();
+				String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
+				JsonObject response = parser.parse(rawResponse).getAsJsonObject();
+				extractAndPerformEvents(response);
+					
+				LOG.trace("ping response: " + rawResponse);
+				
+				future.setValue(null);
+			} catch (Exception e) {
+				future.setException(e);
+			}
+		});
+		
+		return future;
+	}
+	
 	private void extractAndPerformEvents(final JsonObject json) {
 		if (handler == null || json == null || !json.has("events")) {
 			return;
