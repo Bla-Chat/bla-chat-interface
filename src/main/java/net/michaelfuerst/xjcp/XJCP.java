@@ -1,7 +1,12 @@
 package net.michaelfuerst.xjcp;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.concurrent.Future;
+
+import net.michaelfuerst.xjcp.protocol.ChatHistory;
+import net.michaelfuerst.xjcp.protocol.Contact;
+import net.michaelfuerst.xjcp.protocol.Conversation;
 
 /**
  * An interface to the xjcp protocol.
@@ -37,7 +42,7 @@ public interface XJCP {
      * @param user The user to login.
      * @param password The password to use.
      */
-    Future<Void> login(final String user, final String password);
+    Future<Boolean> login(final String user, final String password);
 
     /**
      * Send a text message to a given conversation.
@@ -45,17 +50,17 @@ public interface XJCP {
      * @param conversation The conversation to send to.
      * @param message The text message.
      */
-     Future<Void> sendMessage(final String conversation, final String message);
+     Future<String> sendMessage(final String conversation, final String message);
 
     /**
      * Request the list of open chats.
      */
-    Future<Void> requestChats();
+    Future<List<Conversation>> requestChats();
 
     /**
      * Request the list of contacts.
      */
-    Future<Void> requestContacts();
+    Future<List<Contact>> requestContacts();
 
     /**
      * Request the history of a given conversation.
@@ -63,7 +68,7 @@ public interface XJCP {
      * @param conversation The conversation.
      * @param count The max amount of messages to return.
      */
-    Future<Void> requestHistory(final String conversation, int count);
+    Future<ChatHistory> requestHistory(final String conversation, int count);
 
     /**
      * Remove all events from a given conversation. Assuming the user has read all messages.
@@ -77,7 +82,7 @@ public interface XJCP {
      * 
      * @param participants The participants you want in the conversation.
      */
-    Future<Void> createConversation(final String[] participants);
+    Future<String> createConversation(final String[] participants);
 
     /**
      * Rename an existing conversation for this user.
@@ -85,7 +90,7 @@ public interface XJCP {
      * @param conversation The The conversation.
      * @param name The name to display.
      */
-    Future<Void> renameConversation(final String conversation, final String name);
+    Future<String> renameConversation(final String conversation, final String name);
 
     /**
      * Rename yourself. Change the name that is displayed to others.
@@ -99,7 +104,7 @@ public interface XJCP {
      * 
      * @param user The user to add.
      */
-    Future<Void> addFriend(final String user);
+    Future<String> addFriend(final String user);
 
     /**
      * Set your status.
@@ -130,7 +135,7 @@ public interface XJCP {
      * @param type The type of the event.
      * @param message The message of the event.
      */
-    Future<Void> injectEvent(final String conversation, final String type, final String message);
+    Future<String> injectEvent(final String conversation, final String type, final String message);
 
     /**
      * Send data to a chat.

@@ -12,9 +12,8 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <V>
  */
-public final class GenericFuture<V> implements Future<V> {
-	private final Thread executor;
-	
+public class GenericFuture<V> implements Future<V> {	
+	private volatile Thread executor;
 	private volatile V value;
 	private Throwable exceptionCaught;
 	
@@ -36,7 +35,7 @@ public final class GenericFuture<V> implements Future<V> {
 	}
 	
 	@Override
-	public boolean cancel(boolean mayInterruptIfRunning) {
+	public final boolean cancel(boolean mayInterruptIfRunning) {
 		synchronized (this) {
 			if (isDone()) {
 				return false;
@@ -56,7 +55,7 @@ public final class GenericFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public V get() throws InterruptedException, ExecutionException {
+	public final V get() throws InterruptedException, ExecutionException {
 		synchronized (this) {			
 			while (!isDone()) {
 				wait();
@@ -73,7 +72,7 @@ public final class GenericFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public V get(long timeout, TimeUnit unit) throws InterruptedException,
+	public final V get(long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
 		synchronized (this) {
 			long waitTime = 0;
@@ -97,12 +96,12 @@ public final class GenericFuture<V> implements Future<V> {
 	}
 
 	@Override
-	public boolean isCancelled() {
+	public final boolean isCancelled() {
 		return canceled;
 	}
 
 	@Override
-	public boolean isDone() {
+	public final boolean isDone() {
 		return done;
 	}
 
@@ -123,5 +122,9 @@ public final class GenericFuture<V> implements Future<V> {
 		this.exceptionCaught = e;
 		
 		notifyAll();
+	}
+	
+	public synchronized void setExecutor(Thread t) {
+		this.executor = t;
 	}
 }
