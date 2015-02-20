@@ -143,9 +143,7 @@ public interface XJCP {
      * @param data The data to send.
      * @param conversation The conversation.
      */
-    default Future<Void> sendData(final Object data, final String conversation) {
-    	throw new UnsupportedOperationException();
-    }
+    Future<Void> sendData(final Object data, final String conversation);
     
     /**
      * Terminates all activities.
