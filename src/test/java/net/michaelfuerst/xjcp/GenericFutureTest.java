@@ -16,7 +16,12 @@ public final class GenericFutureTest {
 	@Test(timeout = 200)
 	public void get() throws InterruptedException, ExecutionException {
 		final GenericFuture<Object> future = new GenericFuture<Object>();
-		runDelayed(() -> future.setValue(v), 50);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setValue(v);
+			}
+		}, 50);
 		
 		assertEquals(v, future.get());
 	}
@@ -24,7 +29,12 @@ public final class GenericFutureTest {
 	@Test(timeout = 200)
 	public void getTimed() throws InterruptedException, ExecutionException, TimeoutException {
 		final GenericFuture<Object> future = new GenericFuture<Object>();
-		runDelayed(() -> future.setValue(v), 50);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setValue(v);
+			}
+		}, 50);
 		
 		assertEquals(v, future.get(100, TimeUnit.MILLISECONDS));
 	}
@@ -32,7 +42,12 @@ public final class GenericFutureTest {
 	@Test(timeout = 200, expected = TimeoutException.class)
 	public void getTimedWithTimeout() throws InterruptedException, ExecutionException, TimeoutException {
 		final GenericFuture<Object> future = new GenericFuture<Object>();
-		runDelayed(() -> future.setValue(v), 50);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setValue(v);
+			}
+		}, 50);
 		
 		assertEquals(v, future.get(25, TimeUnit.MILLISECONDS));
 	}
@@ -40,8 +55,18 @@ public final class GenericFutureTest {
 	@Test(timeout = 200, expected = CancellationException.class) 
 	public void cancel() throws InterruptedException, ExecutionException, TimeoutException {
 		final GenericFuture<Object> future = new GenericFuture<Object>();
-		runDelayed(() -> future.setValue(v), 50);
-		runDelayed(() -> future.cancel(false), 10);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setValue(v);
+			}
+		}, 50);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.cancel(false);
+			}
+		}, 10);
 		
 		assertNull(future.get());
 	}
@@ -49,8 +74,18 @@ public final class GenericFutureTest {
 	@Test(timeout = 50, expected = ExecutionException.class) 
 	public void exception() throws InterruptedException, ExecutionException, TimeoutException {
 		final GenericFuture<Object> future = new GenericFuture<Object>();
-		runDelayed(() -> future.setValue(v), 100);
-		runDelayed(() -> future.setException(new RuntimeException()), 10);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setValue(v);
+			}
+		}, 100);
+		runDelayed(new Runnable() {
+			@Override
+			public void run() {
+				future.setException(new RuntimeException());
+			}
+		}, 10);
 		
 		assertNull(future.get());
 	}
