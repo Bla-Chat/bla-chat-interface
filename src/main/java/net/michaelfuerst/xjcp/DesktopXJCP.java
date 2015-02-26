@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import net.michaelfuerst.xjcp.protocol.ChatHistory;
 import net.michaelfuerst.xjcp.protocol.Contact;
@@ -90,6 +91,38 @@ public class DesktopXJCP implements XJCP {
 		this.handler = handler;
 	}
 
+    private void renameMe(String actionId, JsonObject actionContent, GenericFuture<?> future, Consumer<JsonObject> specializedHandler) {
+        final JsonObject json = new JsonObject();
+        json.addProperty("id", clientId);
+        json.add(actionId, actionContent);
+        backToTheFuture(json, future, specializedHandler);
+    }
+
+    private void renameMe(String actionId, String actionContent, GenericFuture<?> future, Consumer<JsonObject> specializedHandler) {
+        final JsonObject json = new JsonObject();
+        json.addProperty("id", clientId);
+        json.addProperty(actionId, actionContent);
+        backToTheFuture(json, future, specializedHandler);
+    }
+    
+    private void backToTheFuture(final JsonObject json,
+                                 final GenericFuture<?> future,
+                                 final Consumer<JsonObject> specializedHandler) {
+        threadPool.submit(() -> {
+            try {
+                lastRequestTime = System.currentTimeMillis();
+                String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
+                JsonObject response = parser.parse(rawResponse).getAsJsonObject();
+                extractAndPerformEvents(response);
+                specializedHandler.accept(response);
+            } catch (Exception e) {
+                future.setException(e);
+            }
+        });
+    }
+    
+    
+    
 	@Override
 	public Future<Boolean> login(final String user, final String password) {
 		final GenericFuture<Boolean> future = new GenericFuture<>();
@@ -99,29 +132,16 @@ public class DesktopXJCP implements XJCP {
 		json.addProperty("pw", password);
 		
 		LOG.debug("Performing login for " + user);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    if (response.get("id") != null) {
-                        clientId = response.get("id").getAsString();
-                        future.setValue(true);
-                        LOG.debug("Login successfull for " + user);
-                    } else {
-                        future.setValue(false);
-                        LOG.debug("Login failed for " + user);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
-            }
-        });
+		backToTheFuture(json, future, (response) -> {
+            if (response.get("id") != null) {
+                clientId = response.get("id").getAsString();
+                future.setValue(true);
+                LOG.debug("Login successfull for " + user);
+            } else {
+                future.setValue(false);
+                LOG.debug("Login failed for " + user);
+            }});
 		
 		return future;
 	}
@@ -134,27 +154,11 @@ public class DesktopXJCP implements XJCP {
 		msg.addProperty("conversation", conversation);
 		msg.addProperty("message", message);
 		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("message", msg);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
-
-                    if (response.get("onMessage") != null) {
-                        future.setValue(response.get("onMessage").getAsString());
-                    } else {
-                        future.setValue("");
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("message", msg, future, (response) -> {
+            if (response.get("onMessage") != null) {
+                future.setValue(response.get("onMessage").getAsString());
+            } else {
+                future.setValue("");
             }
         });
 		
@@ -164,34 +168,17 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<List<Conversation>> requestChats() {
 		final GenericFuture<List<Conversation>> future = new GenericFuture<>();
-				
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("getChats", new JsonObject());
-		
-		LOG.trace("Requested conversations");
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    List<Conversation> conversations = new ArrayList<>();
-                    if (response.get("onGetChats") != null) {
-                        JsonArray chats = response.get("onGetChats").getAsJsonArray();
-                        for (JsonElement chat: chats) {
-                            conversations.add(gson.fromJson(chat, Conversation.class));
-                        }
-                    }
-
-                    future.setValue(conversations);
-                } catch (Exception e) {
-                    future.setException(e);
+        renameMe("getChats", new JsonObject(), future, (response) -> {
+            List<Conversation> conversations = new ArrayList<>();
+            if (response.get("onGetChats") != null) {
+                JsonArray chats = response.get("onGetChats").getAsJsonArray();
+                for (JsonElement chat : chats) {
+                    conversations.add(gson.fromJson(chat, Conversation.class));
                 }
             }
+
+            future.setValue(conversations);
         });
 		
 		return future;
@@ -200,33 +187,16 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<List<Contact>> requestContacts() {
 		final GenericFuture<List<Contact>> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("getContacts", new JsonObject());
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    List<Contact> contacts = new ArrayList<>();
-                    if (response.get("onGetContacts") != null) {
-                        JsonArray cons = response.get("onGetContacts").getAsJsonArray();
-                        for (JsonElement contact: cons) {
-                            contacts.add(gson.fromJson(contact, Contact.class));
-                        }
-                    }
-
-                    future.setValue(contacts);
-                } catch (Exception e) {
-                    future.setException(e);
+        renameMe("getContacts", new JsonObject(), future, (response) -> {
+            List<Contact> contacts = new ArrayList<>();
+            if (response.get("onGetContacts") != null) {
+                JsonArray cons = response.get("onGetContacts").getAsJsonArray();
+                for (JsonElement contact : cons) {
+                    contacts.add(gson.fromJson(contact, Contact.class));
                 }
             }
+            future.setValue(contacts);
         });
 		
 		return future;
@@ -240,27 +210,11 @@ public class DesktopXJCP implements XJCP {
 		request.addProperty("conversation", conversation);
 		request.addProperty("count", count);
 		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("getHistory", request);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
-
-                    if (response.get("onGetHistory") != null) {
-                        future.setValue(gson.fromJson(response.get("onGetHistory").getAsJsonObject(), ChatHistory.class));
-                    } else {
-                        future.setValue(null);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("getHistory", request, future, (response) -> {
+            if (response.get("onGetHistory") != null) {
+                future.setValue(gson.fromJson(response.get("onGetHistory").getAsJsonObject(), ChatHistory.class));
+            } else {
+                future.setValue(null);
             }
         });
 
@@ -270,55 +224,19 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<Void> removeEvents(final String conversation) {
 		final GenericFuture<Void> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.addProperty("removeEvent", conversation);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
-
-                    future.setValue(null);
-                } catch (Exception e) {
-                    future.setException(e);
-                }
-            }
-        });
-		
+        renameMe("removeEvent", conversation, future, (response) -> future.setValue(null));
 		return future;
 	}
 
 	@Override
 	public Future<String> createConversation(final String[] participants) {
 		final GenericFuture<String> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("newConversation", new JsonObject());
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    if (response.get("onNewConversation") != null) {
-                        future.setValue(response.get("onNewConversation").getAsString());
-                    } else {
-                        future.setValue(null);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("newConversation", new JsonObject(), future, (response) -> {
+            if (response.get("onNewConversation") != null) {
+                future.setValue(response.get("onNewConversation").getAsString());
+            } else {
+                future.setValue(null);
             }
         });
 		
@@ -328,28 +246,12 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<String> renameConversation(final String conversation, final String name) {
 		final GenericFuture<String> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("renameConversation", new JsonObject());
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    if (response.get("onRenameConversation") != null) {
-                        future.setValue(response.get("onRenameConversation").getAsString());
-                    } else {
-                        future.setValue(null);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("renameConversation", new JsonObject(), future, (response) -> {
+            if (response.get("onRenameConversation") != null) {
+                future.setValue(response.get("onRenameConversation").getAsString());
+            } else {
+                future.setValue(null);
             }
         });
 		
@@ -359,26 +261,8 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<Void> renameSelf(final String name) {
 		final GenericFuture<Void> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.addProperty("setName", name);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    future.setValue(null);
-                } catch (Exception e) {
-                    future.setException(e);
-                }
-            }
-        });
+        renameMe("setName", name, future, (response) -> future.setValue(null));
 		
 		return future;
 	}
@@ -386,57 +270,23 @@ public class DesktopXJCP implements XJCP {
 	@Override
 	public Future<String> addFriend(final String user) {
 		final GenericFuture<String> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.addProperty("addFriend", user);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    if (response.get("onAddFriend") != null) {
-                        future.setValue(response.get("onAddFriend").getAsString());
-                    } else {
-                        future.setValue(null);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("addFriend", user, future, (response) -> {
+            if (response.get("onAddFriend") != null) {
+                future.setValue(response.get("onAddFriend").getAsString());
+            } else {
+                future.setValue(null);
             }
         });
-		
+
 		return future;
 	}
 
 	@Override
 	public Future<Void> setStatus(final int status) {
 		final GenericFuture<Void> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.addProperty("setStatus", status);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
 
-                    future.setValue(null);
-                } catch (Exception e) {
-                    future.setException(e);
-                }
-            }
-        });
+        renameMe("setStatus", "" + status, future, (response) -> future.setValue(null));
 		
 		return future;
 	}
@@ -462,27 +312,11 @@ public class DesktopXJCP implements XJCP {
 		request.addProperty("type", type);
 		request.addProperty("message", message);
 
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
-		json.add("injectEvent", request);
-		
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
-
-                    if (response.get("onInjectEvent") != null) {
-                        future.setValue(response.get("onInjectEvent").getAsString());
-                    } else {
-                        future.setValue(null);
-                    }
-                } catch (Exception e) {
-                    future.setException(e);
-                }
+        renameMe("injectEvent", request, future, (response) -> {
+            if (response.get("onInjectEvent") != null) {
+                future.setValue(response.get("onInjectEvent").getAsString());
+            } else {
+                future.setValue(null);
             }
         });
 		
@@ -502,29 +336,10 @@ public class DesktopXJCP implements XJCP {
 
 	private Future<Void> ping() {
 		final GenericFuture<Void> future = new GenericFuture<>();
-		
-		final JsonObject json = new JsonObject();
-		json.addProperty("id", clientId);
 
-		threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    lastRequestTime = System.currentTimeMillis();
-                    String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
-                    JsonObject response = parser.parse(rawResponse).getAsJsonObject();
-                    extractAndPerformEvents(response);
+        renameMe("ping", "" + System.nanoTime(), future, (response) -> future.setValue(null));
 
-                    LOG.trace("ping response: " + rawResponse);
-
-                    future.setValue(null);
-                } catch (Exception e) {
-                    future.setException(e);
-                }
-            }
-        });
-		
-		return future;
+        return future;
 	}
 	
 	private void extractAndPerformEvents(final JsonObject json) {
