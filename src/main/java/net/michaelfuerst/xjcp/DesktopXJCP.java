@@ -95,26 +95,30 @@ public class DesktopXJCP implements XJCP {
         final JsonObject json = new JsonObject();
         json.addProperty("id", clientId);
         json.add(actionId, actionContent);
-        backToTheFuture(json, future, specializedHandler);
+        sendRequest(json, future, specializedHandler);
     }
 
     private void renameMe(String actionId, String actionContent, GenericFuture<?> future, Consumer<JsonObject> specializedHandler) {
         final JsonObject json = new JsonObject();
         json.addProperty("id", clientId);
         json.addProperty(actionId, actionContent);
-        backToTheFuture(json, future, specializedHandler);
+        sendRequest(json, future, specializedHandler);
     }
     
-    private void backToTheFuture(final JsonObject json,
-                                 final GenericFuture<?> future,
-                                 final Consumer<JsonObject> specializedHandler) {
+    private void sendRequest(final JsonObject json,
+        final GenericFuture<?> future,
+        final Consumer<JsonObject> responseHandler) {
+
         threadPool.submit(() -> {
             try {
                 lastRequestTime = System.currentTimeMillis();
+
                 String rawResponse = HTTPService.sendPostRequest(host, new HttpParameter("msg", gson.toJson(json)));
                 JsonObject response = parser.parse(rawResponse).getAsJsonObject();
+
                 extractAndPerformEvents(response);
-                specializedHandler.accept(response);
+
+                responseHandler.accept(response);
             } catch (Exception e) {
                 future.setException(e);
             }
@@ -133,15 +137,17 @@ public class DesktopXJCP implements XJCP {
 		
 		LOG.debug("Performing login for " + user);
 
-		backToTheFuture(json, future, (response) -> {
+		sendRequest(json, future, (response) -> {
             if (response.get("id") != null) {
-                clientId = response.get("id").getAsString();
+                this.clientId = response.get("id").getAsString();
+
                 future.setValue(true);
                 LOG.debug("Login successfull for " + user);
             } else {
                 future.setValue(false);
                 LOG.debug("Login failed for " + user);
-            }});
+            }
+        });
 		
 		return future;
 	}
